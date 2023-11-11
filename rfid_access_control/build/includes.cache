@@ -1,0 +1,47 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/variants/eightanaloginputs"
+  },
+  {
+    "Sourcefile": "/home/oussama/github/arduino-rfid/rfid_access_control/build/sketch/rfid_access_control.ino.cpp",
+    "Include": "SPI.h",
+    "Includepath": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/SPI/src"
+  },
+  {
+    "Sourcefile": "/home/oussama/github/arduino-rfid/rfid_access_control/build/sketch/rfid_access_control.ino.cpp",
+    "Include": "MFRC522.h",
+    "Includepath": "/home/oussama/Arduino/libraries/MFRC522/src"
+  },
+  {
+    "Sourcefile": "/home/oussama/github/arduino-rfid/rfid_access_control/build/sketch/rfid_access_control.ino.cpp",
+    "Include": "EEPROM.h",
+    "Includepath": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/EEPROM/src"
+  },
+  {
+    "Sourcefile": "/home/oussama/github/arduino-rfid/rfid_access_control/build/sketch/rfid_access_control.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/SPI/src/SPI.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/oussama/Arduino/libraries/MFRC522/src/MFRC522.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/oussama/Arduino/libraries/MFRC522/src/MFRC522Extended.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]

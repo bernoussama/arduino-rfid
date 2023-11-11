@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#line 1 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
 // adding access control system
 #include <SPI.h>
 #include <MFRC522.h>
@@ -27,8 +29,39 @@ int successRead;                                        // Variable to check if 
 uint16_t idx;                                           // index in EEPROM of a found ID
 uint16_t MAX_INDEX = MAX_COUNT - 3;                     // last index in EEPROM
 unsigned long unlockStartTime = 0;                      // time when relay was unlocked
-const uint32_t unlockDuration = 60000;                   // 1 minute is 60000 ms
+const uint32_t unlockDuration = 6000;                   // 1 minute is 60000 ms
 
+#line 32 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void setup();
+#line 51 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void loop();
+#line 128 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+int getID();
+#line 143 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+bool isMaster();
+#line 155 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+uint16_t findID(idArray id);
+#line 185 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void writeID(idArray id);
+#line 208 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void deleteID(uint16_t idx);
+#line 224 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void readID(uint8_t i);
+#line 238 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+int compareID(idArray id1, idArray id2);
+#line 254 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void granted();
+#line 266 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void denied();
+#line 273 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+bool isRelayLocked();
+#line 280 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void unlockRelay();
+#line 289 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void lockRelay();
+#line 298 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
+void ShowReaderDetails();
+#line 32 "/home/oussama/github/arduino-rfid/rfid_access_control/rfid_access_control.ino"
 void setup() {
 
   pinMode(RELAY_PIN, OUTPUT);
@@ -315,3 +348,4 @@ void ShowReaderDetails() {
       ;  // do not go further
   }
 }
+
