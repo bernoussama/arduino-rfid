@@ -27,11 +27,10 @@ int successRead;                                        // Variable to check if 
 uint16_t idx;                                           // index in EEPROM of a found ID
 uint16_t MAX_INDEX = MAX_COUNT - 3;                     // last index in EEPROM
 unsigned long unlockStartTime = 0;                      // time when relay was unlocked
-const uint32_t unlockDuration = 60000;                   // 1 minute is 60000 ms
+const uint32_t unlockDuration = 60000;                  // 1 minute is 60000 ms
 
 void setup() {
-
-  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(RELAY_PIN, OUTPUT);    // set relay pin as output
   digitalWrite(RELAY_PIN, LOW);  // Initialize relay as locked
 
   Serial.begin(9600);
