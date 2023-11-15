@@ -1,0 +1,22 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/variants/eightanaloginputs"
+  },
+  {
+    "Sourcefile": "/home/oussama/github/arduino-rfid/nullify/build/sketch/nullify.ino.cpp",
+    "Include": "EEPROM.h",
+    "Includepath": "/home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/EEPROM/src"
+  },
+  {
+    "Sourcefile": "/home/oussama/github/arduino-rfid/nullify/build/sketch/nullify.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]

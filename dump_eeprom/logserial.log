@@ -1,0 +1,38 @@
+MFRC522 Software Version: 0x92 = v2.0
+
+number of allowed cards :1CDEDC982
+
+Hello Master - Entered Program Mode
+
+I have 1 record(s) on EEPROM
+
+Scan a PICC to ADD or REMOVE to EEPROM
+
+Scan Master Card again to Exit Program Mode
+
+-----------------------------
+
+501BD21E
+
+id: 501BD21EstoredID: A7100
+
+id: 50
+
+storedCard: A7
+
+0
+
+I do not know this PICC, adding...
+
+PICC Added!
+
+-----------------------------
+
+Scan a PICC to ADD or REMOVE to EEPROM
+
+PICC Added!
+
+-----------------------------
+
+Scan a PICC to ADD or REMOVE to EEPROM
+
