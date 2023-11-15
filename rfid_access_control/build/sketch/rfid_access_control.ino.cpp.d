@@ -16,4 +16,5 @@
  /home/oussama/Arduino/libraries/MFRC522/src/MFRC522.h \
  /home/oussama/Arduino/libraries/MFRC522/src/require_cpp11.h \
  /home/oussama/Arduino/libraries/MFRC522/src/deprecated.h \
- /home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/EEPROM/src/EEPROM.h
+ /home/oussama/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/EEPROM/src/EEPROM.h \
+ /home/oussama/github/arduino-rfid/rfid_access_control/build/sketch/pitches.h

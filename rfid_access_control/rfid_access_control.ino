@@ -3,18 +3,24 @@
 #include <MFRC522.h>
 #include <EEPROM.h>
 
+#include "pitches.h"
+
 
 // Custom types
 typedef byte idArray[4];  // defining idArray (an array of 4 bytes)
 
 // Create MFRC instance
-#define SS_PIN 10
-#define RST_PIN 9
-MFRC522 mfrc522(SS_PIN, RST_PIN);
+#define SS_PIN 10                  // slave select pin
+#define RST_PIN 9                  // reset pin
+MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 
-#define RELAY_PIN 7
-#define CARDS_COUNT EEPROM.read(0)
-#define MAX_COUNT EEPROM.length() - 1
+#define BUILTIN_LED 13  // builtin led pin
+#define RELAY_PIN 7     // relay pin
+#define BUZZER_PIN 8    // buzzer pin
+
+#define CARDS_COUNT EEPROM.read(0)     // number of cards in EEPROM
+#define MAX_COUNT EEPROM.length() - 1  // 1023
+#define DELAY_TIME 500                 // ms
 
 bool programMode = false;  // initialize programming mode to false
 
@@ -29,13 +35,59 @@ uint16_t MAX_INDEX = MAX_COUNT - 3;                     // last index in EEPROM
 unsigned long unlockStartTime = 0;                      // time when relay was unlocked
 const uint32_t unlockDuration = 60000;                  // 1 minute is 60000 ms
 
+
+namespace Tone {  // namespace for notes example: Tone::Do();
+
+void Do(int scale = 1, int duration = 500) {
+  tone(BUZZER_PIN, NOTE_C1 * scale, 500);
+};
+void Re(int scale = 1, int duration = 500) {
+  tone(BUZZER_PIN, NOTE_D1 * scale, 500);
+}
+void Mi(int scale = 1, int duration = 500) {
+  tone(BUZZER_PIN, NOTE_E1 * scale, 500);
+}
+void Fa(int scale = 1, int duration = 500) {
+  tone(BUZZER_PIN, NOTE_F1 * scale, 500);
+}
+void Sol(int scale = 1, int duration = 500) {
+  tone(BUZZER_PIN, NOTE_G1 * scale, 500);
+}
+void La(int scale = 1, int duration = 500) {
+  tone(BUZZER_PIN, NOTE_A1 * scale, 500);
+}
+void Si(int scale = 1, int duration = 500) {
+  tone(BUZZER_PIN, NOTE_B1 * scale, 500);
+}
+
+}
 void setup() {
+  blinkLED(3, 100);
+  pinMode(BUILTIN_LED, OUTPUT);    // set led pin as output
+  digitalWrite(BUILTIN_LED, LOW);  // Initialize led as off
+
+  pinMode(BUZZER_PIN, OUTPUT);    // set buzzer pin as output
+  digitalWrite(BUZZER_PIN, LOW);  // Initialize buzzer as off
+
   pinMode(RELAY_PIN, OUTPUT);    // set relay pin as output
   digitalWrite(RELAY_PIN, LOW);  // Initialize relay as locked
 
-  Serial.begin(9600);
-  // SPI Protocol config
-  SPI.begin();
+  Serial.begin(9600);  // Initialize serial communications with the PC
+  SPI.begin();         // SPI Protocol config
+
+  // tone(BUZZER_PIN, 100, 100);  // beep to indicate start of setup
+  // delay(100);
+  // tone(BUZZER_PIN, 1000, 100);
+  // noTone(BUZZER_PIN);
+  // playMelody();
+  // doremifasolasido();
+  Tone::Si(5, 200);
+  delay(200);
+  Tone::Sol(4, 200);
+  delay(200);
+  Tone::Si(6, 200);
+  delay(200);
+  noTone(BUZZER_PIN);
 
   mfrc522.PCD_Init();  // Init MFRC522 card
 
@@ -47,8 +99,8 @@ void setup() {
   Serial.print(CARDS_COUNT, DEC);
 }
 
-void loop() {
 
+void loop() {
   // check for relay unlock timeout
   if (!isRelayLocked() && ((millis() - unlockStartTime) >= unlockDuration)) {
     lockRelay();
@@ -65,6 +117,7 @@ void loop() {
         Serial.println(F("Exiting Program Mode"));
         Serial.println(F("-----------------------------"));
         programMode = false;
+        blinkLED(5, 50);
         return;
       } else {
         idx = findID(readCard);
@@ -90,7 +143,7 @@ void loop() {
     } else {
       if (isMaster()) {  // If scanned card's ID matches Master Card's ID - enter program mode
         programMode = true;
-
+        blinkLED(5, 100);
         Serial.println(F("Hello Master - Entered Program Mode"));
         Serial.print(F("I have "));
         Serial.print(CARDS_COUNT);
@@ -114,7 +167,7 @@ void loop() {
       }
     }
   }
-  delay(1000);
+  delay(DELAY_TIME);
 }
 
 
@@ -122,10 +175,26 @@ void loop() {
 
 
 /**
+* blink led
+* @param times number of times to blink
+* @param del delay between blinks
+*/
+void blinkLED(uint8_t times, uint8_t del) {
+  for (uint8_t i = 0; i < times; i++) {
+    digitalWrite(BUILTIN_LED, HIGH);
+    delay(del);
+    digitalWrite(BUILTIN_LED, LOW);
+    delay(del);
+  }
+}
+
+/**
 * @return 1 if card is read, 0 if not
 */
 int getID() {
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
+    Serial.println("");
+    Serial.print("read card: ");
     for (uint8_t i = 0; i < 4; i++) {
       readCard[i] = mfrc522.uid.uidByte[i];
       Serial.print(readCard[i], HEX);
@@ -140,13 +209,14 @@ int getID() {
 * @return true if readCard is master card, false if not
 */
 bool isMaster() {
-  for (byte i = 0; i < 4; i++) {
+  for (byte i = 0; i < 4; i++) {  // Check card ID read against master card
     if (readCard[i] != MASTER_CARD_UID[i] && readCard[i] != MASTER_CARD_UID2[i]) {
       return (false);
     }
   }
   return (true);
 }
+
 
 /**
 * @return index of the id in EEPROM, 0 if not found
@@ -158,17 +228,6 @@ uint16_t findID(idArray id) {
       for (uint8_t x = 0; x < 4; x++) {
         storedID[x] = EEPROM.read(i + x);
       }
-      ////////////////////
-      Serial.print("id: ");
-      for (uint8_t x = 0; x < 4; x++) {
-        Serial.print(id[x], HEX);
-      }
-      Serial.print("storedID: ");
-      for (uint8_t x = 0; x < 4; x++) {
-        Serial.print(storedID[x], HEX);
-      }
-      Serial.println("");
-      /////////////////////
       if (compareID(id, storedID) == 1) {
         return i;
       }
@@ -236,10 +295,6 @@ void readID(uint8_t i) {
 */
 int compareID(idArray id1, idArray id2) {
   for (uint8_t i = 0; i < 4; i++) {
-    Serial.print("id: ");
-    Serial.println(id1[i], HEX);
-    Serial.print("storedCard: ");
-    Serial.println(id2[i], HEX);
     if (id1[i] != id2[i])
       return (0);  // if a Byte is different
   }
@@ -254,6 +309,8 @@ void granted() {
 
   if (isRelayLocked()) {  // if relay is locked, unlock it
     unlockRelay();
+    tone(BUZZER_PIN, 1000, 100);  // beep to indicate access granted
+    tone(BUZZER_PIN, 500, 100);
   } else {  // if relay is unlocked, lock it
     lockRelay();
   }
@@ -263,6 +320,14 @@ void granted() {
 * deny access, do nothing
 */
 void denied() {
+
+  Tone::Si(5, 200);
+  delay(200);
+  Tone::Si(5, 200);
+  delay(200);
+  Tone::Si(5, 200);
+  delay(200);
+  noTone(BUZZER_PIN);
   ;
 }
 
@@ -314,3 +379,114 @@ void ShowReaderDetails() {
       ;  // do not go further
   }
 }
+
+void serialConsole() {
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == 'd') {
+      dumpEEPROM();
+
+    } else {
+      Serial.println("unknown command");
+    }
+  }
+}
+
+char *readline() {
+  static char line[80];
+  static uint8_t lineIndex = 0;
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n') {
+      line[lineIndex] = '\0';
+      lineIndex = 0;
+      return line;
+    } else {
+      line[lineIndex] = c;
+      lineIndex++;
+      if (lineIndex >= 80) {
+        lineIndex = 0;
+      }
+    }
+  }
+
+  return NULL;
+}
+
+void dumpEEPROM() {
+  Serial.println("dumping EEPROM");
+  for (uint16_t i = 0; i <= MAX_COUNT; i++) {
+    Serial.print(EEPROM.read(i), HEX);
+    Serial.print(" ");
+  }
+  Serial.println("");
+}
+void clearEEPROM() {
+  Serial.println("clearing EEPROM");
+  for (uint16_t i = 0; i <= MAX_COUNT; i++) {
+    EEPROM.write(i, 0);
+  }
+  EEPROM.write(0, 0);
+}
+
+void playMelody() {
+
+  // notes in the melody:
+  int melody[] = {
+
+    NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
+  };
+
+  // note durations: 4 = quarter note, 8 = eighth note, etc.:
+  int noteDurations[] = {
+
+    4, 8, 8, 4, 4, 4, 4, 4
+  };
+  // iterate over the notes of the melody:
+
+  for (int thisNote = 0; thisNote < 8; thisNote++) {
+
+    // to calculate the note duration, take one second divided by the note type.
+
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+
+    int noteDuration = 1000 / noteDurations[thisNote];
+
+    tone(BUZZER_PIN, melody[thisNote], noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+
+    // the note's duration + 30% seems to work well:
+
+    int pauseBetweenNotes = noteDuration * 1.30;
+
+    delay(pauseBetweenNotes);
+
+    // stop the tone playing:
+
+    noTone(BUZZER_PIN);
+  }
+}
+void doremifasolasido() {
+  tone(BUZZER_PIN, NOTE_C4, 500);
+  delay(500);
+  tone(BUZZER_PIN, NOTE_D4, 500);
+  delay(500);
+  tone(BUZZER_PIN, NOTE_E4, 500);
+  delay(500);
+  tone(BUZZER_PIN, NOTE_F4, 500);
+  delay(500);
+  tone(BUZZER_PIN, NOTE_G4, 500);
+  delay(500);
+  tone(BUZZER_PIN, NOTE_A4, 500);
+  delay(500);
+  tone(BUZZER_PIN, NOTE_B4, 500);
+  delay(500);
+  tone(BUZZER_PIN, NOTE_C5, 500);
+  delay(500);
+  noTone(BUZZER_PIN);
+}
+
+
+
+
