@@ -60,6 +60,15 @@ void Si(int scale = 1, int duration = 500) {
   tone(BUZZER_PIN, NOTE_B1 * scale, 500);
 }
 
+namespace eeprom {
+// function that read 4 bytes and return an idArray
+void read(uint16_t i, idArray *storedCard) {
+  for (uint8_t x = 0; x < 4; x++) {
+    *storedCard[x] = EEPROM.read(i + x);
+  }
+}
+}
+
 }
 void setup() {
   blinkLED(3, 100);
@@ -241,22 +250,30 @@ uint16_t findID(idArray id) {
 * @param id id to write to EEPROM
 */
 void writeID(idArray id) {
-  if (CARDS_COUNT < (MAX_COUNT / 4)) {  // Ensure there's space for the new ID
 
-    uint16_t newAddress = (CARDS_COUNT * 4) + 1;  // Calculate next available EEPROM address
-    // EEPROM.put(newAddress, id);  // Write the new ID to EEPROM
-    for (uint8_t i = 0; i < 4; i++) {  // Write the new ID to EEPROM
-      EEPROM.write(newAddress + i, id[i]);
+  uint16_t newAddress;  // Calculate next available EEPROM address
+  idArray tmpID;
+  for (uint8_t i = 1; i < MAX_COUNT - 3; i + 4) {
+    newAddress = i;
+    for (uint8_t j = 0; j < 4; j++) {  // Write the new ID to EEPROM
+      tmpID[j] = EEPROM.read(newAddress + j);
     }
-    EEPROM.write(0, uint8_t(CARDS_COUNT + 1));  // Increment the counter in the first address of EEPROM
-
-    Serial.println(F("PICC Added!"));
-    Serial.println(F("-----------------------------"));
-    Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
-  } else {
-    Serial.println(F("Reached maximum card capacity in EEPROM."));
+    if (compareID(tmpID, nullID) == 1) {
+      for (uint8_t j = 0; j < 4; j++) {
+        EEPROM.write(newAddress + j, id[j]);
+        EEPROM.write(0, uint8_t(CARDS_COUNT + 1));  // Increment the counter in the first address of EEPROM
+      }
+      break;
+    }
   }
+  Serial.println(F("PICC Added!"));
+  Serial.println(F("-----------------------------"));
+  Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
 }
+// else {
+//   Serial.println(F("Reached maximum card capacity in EEPROM."));
+// }
+// }
 
 
 /**
@@ -486,7 +503,3 @@ void doremifasolasido() {
   delay(500);
   noTone(BUZZER_PIN);
 }
-
-
-
-
