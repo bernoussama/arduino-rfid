@@ -254,30 +254,21 @@ void writeID(idArray id) {
 
   uint16_t newAddress;  // Calculate next available EEPROM address
   idArray tmpID;
-  for (uint8_t i = 1; i < MAX_COUNT - 3; i= i + 4) {
+  for (uint8_t i = 1; i < MAX_COUNT - 3; i = i + 4) {
     newAddress = i;
-    Serial.print("new address: ");
-    Serial.println(newAddress);
-    Serial.print("tmp id: ");
     for (uint8_t j = 0; j < 4; j++) {  // Write the new ID to EEPROM
 
       tmpID[j] = EEPROM.read(newAddress + j);
-      Serial.print(tmpID[j], HEX);
     }
 
     if (compareID(tmpID, nullID) == 1) {
-      Serial.println("");
-      Serial.print("writing id: ");
       for (uint8_t j = 0; j < 4; j++) {
         EEPROM.write(newAddress + j, uint8_t(id[j]));
-        EEPROM.write(0, uint8_t(CARDS_COUNT + 1));  // Increment the counter in the first address of EEPROM
       }
-      Serial.println("written id:");
+        EEPROM.write(0, uint8_t(CARDS_COUNT + 1));  // Increment the counter in the first address of EEPROM
       for (uint8_t j = 0; j < 4; j++) {
         Serial.print(EEPROM.read(newAddress + j), HEX);
       }
-      Serial.print("new address: ");
-      Serial.println(newAddress);
       Serial.println(F("PICC Added!"));
       Serial.println(F("-----------------------------"));
       Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));

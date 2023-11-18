@@ -1,0 +1,34 @@
+#!/bin/env bash
+
+port="/dev/ttyUSB0"
+
+check_nullify() {
+    cat "$port" | while IFS= read -r line
+    do
+        if echo "$line" | grep -q "nullified"; then
+            echo "nullified"
+            # return
+            # exit 0
+            pid="$!"
+            kill -9 "$pid"
+
+        fi
+    done
+}
+
+arduino-cli compile -u ./nullify/nullify.ino
+if [ $? -eq 0 ]; then
+    echo "nullify compiled"
+    # check_nullify
+    sleep 10
+else
+    echo "nullify failed to compile"
+    exit 1
+fi
+arduino-cli compile -u ./rfid_access_control/rfid_access_control.ino
+if [ $? -eq 0 ]; then
+    echo "rfid_access_control compiled"
+else
+    echo "rfid_access_control failed to compile"
+    exit 1
+fi
