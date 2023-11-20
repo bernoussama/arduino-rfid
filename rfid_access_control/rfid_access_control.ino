@@ -24,7 +24,8 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 
 bool programMode = false;  // initialize programming mode to false
 
-idArray MASTER_CARD_UID = { 0xEC, 0x00, 0xD8, 0x32 };   // master Card ID
+// idArray MASTER_CARD_UID = { 0xEC, 0x00, 0xD8, 0x32 };   // master Card ID
+idArray MASTER_CARD_UID = { 0x23, 0x7B, 0x68, 0x33 };   // master Card ID
 idArray MASTER_CARD_UID2 = { 0xCD, 0xED, 0xC9, 0x82 };  // master Card ID2
 idArray readCard;                                       // Stores scanned ID read from RFID Module
 idArray storedCard;                                     // Stores the ID read from EEPROM to check it
@@ -58,6 +59,15 @@ void La(int scale = 1, int duration = 500) {
 }
 void Si(int scale = 1, int duration = 500) {
   tone(BUZZER_PIN, NOTE_B1 * scale, 500);
+}
+
+namespace eeprom {
+// function that read 4 bytes and return an idArray
+void read(uint16_t i, idArray *storedCard) {
+  for (uint8_t x = 0; x < 4; x++) {
+    *storedCard[x] = EEPROM.read(i + x);
+  }
+}
 }
 
 }
@@ -241,22 +251,35 @@ uint16_t findID(idArray id) {
 * @param id id to write to EEPROM
 */
 void writeID(idArray id) {
-  if (CARDS_COUNT < (MAX_COUNT / 4)) {  // Ensure there's space for the new ID
 
-    uint16_t newAddress = (CARDS_COUNT * 4) + 1;  // Calculate next available EEPROM address
-    // EEPROM.put(newAddress, id);  // Write the new ID to EEPROM
-    for (uint8_t i = 0; i < 4; i++) {  // Write the new ID to EEPROM
-      EEPROM.write(newAddress + i, id[i]);
+  uint16_t newAddress;  // Calculate next available EEPROM address
+  idArray tmpID;
+  for (uint8_t i = 1; i < MAX_COUNT - 3; i = i + 4) {
+    newAddress = i;
+    for (uint8_t j = 0; j < 4; j++) {  // Write the new ID to EEPROM
+
+      tmpID[j] = EEPROM.read(newAddress + j);
     }
-    EEPROM.write(0, uint8_t(CARDS_COUNT + 1));  // Increment the counter in the first address of EEPROM
 
-    Serial.println(F("PICC Added!"));
-    Serial.println(F("-----------------------------"));
-    Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
-  } else {
-    Serial.println(F("Reached maximum card capacity in EEPROM."));
+    if (compareID(tmpID, nullID) == 1) {
+      for (uint8_t j = 0; j < 4; j++) {
+        EEPROM.write(newAddress + j, uint8_t(id[j]));
+      }
+        EEPROM.write(0, uint8_t(CARDS_COUNT + 1));  // Increment the counter in the first address of EEPROM
+      for (uint8_t j = 0; j < 4; j++) {
+        Serial.print(EEPROM.read(newAddress + j), HEX);
+      }
+      Serial.println(F("PICC Added!"));
+      Serial.println(F("-----------------------------"));
+      Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
+      return;
+    }
   }
 }
+// else {
+//   Serial.println(F("Reached maximum card capacity in EEPROM."));
+// }
+// }
 
 
 /**
@@ -486,7 +509,3 @@ void doremifasolasido() {
   delay(500);
   noTone(BUZZER_PIN);
 }
-
-
-
-
