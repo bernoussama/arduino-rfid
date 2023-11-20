@@ -61,6 +61,7 @@ void Si(int scale = 1, int duration = 500) {
   tone(BUZZER_PIN, NOTE_B1 * scale, 500);
 }
 
+/*
 namespace eeprom {
 // function that read 4 bytes and return an idArray
 void read(uint16_t i, idArray *storedCard) {
@@ -69,6 +70,7 @@ void read(uint16_t i, idArray *storedCard) {
   }
 }
 }
+*/
 
 }
 void setup() {
@@ -80,7 +82,7 @@ void setup() {
   digitalWrite(BUZZER_PIN, LOW);  // Initialize buzzer as off
 
   pinMode(RELAY_PIN, OUTPUT);    // set relay pin as output
-  digitalWrite(RELAY_PIN, LOW);  // Initialize relay as locked
+  digitalWrite(RELAY_PIN, HIGH);  // Initialize relay(new one) as locked
 
   Serial.begin(9600);  // Initialize serial communications with the PC
   SPI.begin();         // SPI Protocol config
@@ -358,14 +360,14 @@ void denied() {
 * @return true if relay is locked, false if not
 */
 bool isRelayLocked() {
-  return (digitalRead(RELAY_PIN) == LOW);
+  return (digitalRead(RELAY_PIN) == HIGH);
 }
 
 /**
 * unlock relay
 */
 void unlockRelay() {
-  digitalWrite(RELAY_PIN, HIGH);  // Unlock the relay
+  digitalWrite(RELAY_PIN, LOW);  // Unlock the relay
   unlockStartTime = millis();     // save unlock time
   Serial.println("Relay unlocked");
 }
@@ -374,7 +376,7 @@ void unlockRelay() {
 * lock relay
 */
 void lockRelay() {
-  digitalWrite(RELAY_PIN, LOW);  // Lock the relay
+  digitalWrite(RELAY_PIN, HIGH);  // Lock the relay
   Serial.println("Relay locked");
 }
 
